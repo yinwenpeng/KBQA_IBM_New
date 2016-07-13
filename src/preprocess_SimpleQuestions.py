@@ -1128,9 +1128,9 @@ def EntityLinkingResult_into_TrainModelInput_TestValid():
                 mid=tokens[0]
 #                 print 'mid:', mid
                 s1=tokens[1]
-                s2=tokens[2]
-                s3=tokens[3]
-                s4=tokens[4]
+#                 s2=tokens[2]
+#                 s3=tokens[3]
+#                 s4=tokens[4]
                 mid_related_tuples=id2tuples.get(mid)
 #                 print mid, mid_related_tuples, len(mid_related_tuples)
                 if mid_related_tuples is None:
@@ -1140,7 +1140,8 @@ def EntityLinkingResult_into_TrainModelInput_TestValid():
                 mid_name=mid_name_str.split()
                 mid_des=id2des.get(mid)
                 if p==0:
-                    tuple_write.append('=='.join(ground_tuple)+'=='+'=='.join([s1,s2,s3,s4]))
+#                     tuple_write.append('=='.join(ground_tuple)+'=='+'=='.join([s1,s2,s3,s4]))
+                    tuple_write.append('=='.join(ground_tuple)+'=='+'=='.join([s1]))
                     name_write.append(mid_name_str)
                     des_write.append(mid_des)
                     men_Q_write.append('=='.join(list(mention_detection_given_questionAndEntity(question, mid_name))))
@@ -1148,7 +1149,8 @@ def EntityLinkingResult_into_TrainModelInput_TestValid():
                         mid_related_tuples.remove(ground_tuple)
                 
                 for related_tup in mid_related_tuples:
-                    tuple_write.append('=='.join(related_tup)+'=='+'=='.join([s1,s2,s3,s4]))
+#                     tuple_write.append('=='.join(related_tup)+'=='+'=='.join([s1,s2,s3,s4]))
+                    tuple_write.append('=='.join(related_tup)+'=='+'=='.join([s1]))
                     name_write.append(mid_name_str)
                     des_write.append(mid_des)
                     men_Q_write.append('=='.join(list(mention_detection_given_questionAndEntity(question, mid_name))))
