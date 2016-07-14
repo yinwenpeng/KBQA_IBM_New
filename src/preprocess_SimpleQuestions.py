@@ -1108,11 +1108,14 @@ def EntityLinkingResult_into_TrainModelInput_TestValid():
         count=0
         for line in readfile:
             neg_size_line=0
-            parts=line.strip().split()
-#             print 'len(parts):', len(parts)
-            entity_parts=parts[:20]
-            question=parts[20:]
-            if parts[20].find('==')>=0:
+            parts=line.strip().split('\t')
+            len_row= len(parts)
+#             print 'len_row:', len_row
+            entity_parts=parts[:-1]
+            question=parts[-1].split() # is a list
+#             print 'question:', question
+#             exit(0)
+            if question[0].find('==')>=0:
                 print 'format error'
                 exit(0)
             ground_tuple=ground_tuple_list[count]
@@ -1121,10 +1124,12 @@ def EntityLinkingResult_into_TrainModelInput_TestValid():
             name_write=[]
             des_write=[]
             men_Q_write=[]
-            for p in range(20):
+            for p in range(len_row-1):
                 part=entity_parts[p]
 #             for part in parts[:-1]:
                 tokens=part.strip().split('==')
+                if len(tokens)!=2:
+                    continue
                 mid=tokens[0]
 #                 print 'mid:', mid
                 s1=tokens[1]
@@ -1137,6 +1142,8 @@ def EntityLinkingResult_into_TrainModelInput_TestValid():
                     continue
 #                 neg_size_line+=len(mid_related_tuples)
                 mid_name_str=id2name.get(mid)
+                if mid_name_str is None:
+                    continue
                 mid_name=mid_name_str.split()
                 mid_des=id2des.get(mid)
                 if p==0:
@@ -1335,6 +1342,7 @@ def mention_detection_given_questionAndEntity_characterLevel(a, b):
     return mention, question_minus           
             
 def mention_detection_given_questionAndEntity(a, b):
+#     print 'a, b:', a, b, len(a), len(b)
     len_a=len(a)
     len_b=len(b)
     a_label=[0]*len_a
@@ -1365,10 +1373,12 @@ def mention_detection_given_questionAndEntity(a, b):
     b_first_1_posi=b_last_1_posi-l+1    
 #     print a_label, b_label
     a_first_1_posi=max(0, a_first_1_posi-b_first_1_posi)
-#     print a_last_1_posi, (len_b-b_last_1_posi)
+#     print 'a_first_1_posi:', a_first_1_posi
     a_last_1_posi+=(len_b-b_last_1_posi-1)
 #     print a_last_1_posi
     mention=' '.join(a[a_first_1_posi:a_last_1_posi+1])
+#     print 'mention:', mention
+#     print 'a:', a
     question_minus=' '.join(a[:a_first_1_posi]+['<e>']+a[a_last_1_posi+1:])
     
     return mention, question_minus
@@ -1420,7 +1430,7 @@ def MoTestData_to_EntityLinking_top20_format():
                 remain_list.append(key+'=='+score)
 #             print remain_list
 #             exit(0)
-            writefile.write(ground_truth+'=='+ground_score+'\t'+'\t'.join(remain_list)+'\t'+question_list[line_co]+'\n')
+            writefile.write(ground_truth+'=='+ground_score+'\t'+'\t'.join(remain_list).strip()+'\t'+question_list[line_co].strip()+'\n')
             write_sub_testfile.write(raw_test_list[line_co]+'\n')
         else:
             fail_co+=1
@@ -1474,8 +1484,8 @@ if __name__ == '__main__':
 #     print c
 # 
 # 
-#     a="what 's akbar tandjung 's ethinicity".split()
-#     b="what is new".split()
+#     a="what language is viper in".split()
+#     b="nursing a viper".split()
 #     print a, b
 #     c=list(mention_detection_given_questionAndEntity(a,b))
 #     print c
