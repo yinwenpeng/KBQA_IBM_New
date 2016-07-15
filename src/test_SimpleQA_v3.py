@@ -60,12 +60,12 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nker
                     emb_size=500, char_emb_size=100, hidden_size=200,
                     margin=0.5, L2_weight=0.0003, update_freq=1, norm_threshold=5.0, max_truncate=40, 
                     max_char_len=40, max_des_len=20, max_relation_len=5, max_Q_len=30, train_neg_size=6, 
-                    neg_all=100, train_size=75893, test_size=19835, mark='_BiasedMaxPool_lr0.1_word500_char100_noDes_ent2.0'):  #train_size=75909, test_size=17386
+                    neg_all=100, train_size=75893, test_size=19168, mark='_BiasedMaxPool_lr0.1_word500_char100_noDes_ent2.0'):  #train_size=75909, test_size=17386
 #     maxSentLength=max_truncate+2*(window_width-1)
     model_options = locals().copy()
     print "model options", model_options
     rootPath='/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/'
-    triple_files=['annotated_fb_data_train.entitylinking.top20_succSet_asInput.txt', 'annotated_fb_data_test.entitylinking.top20_succSet_asInput.fromMo.txt']
+    triple_files=['annotated_fb_data_train.entitylinking.top20_succSet_asInput.txt', 'annotated_fb_data_test.entitylinking.top20_succSet_asInput.fromMo_FB5M.txt']
 
     rng = numpy.random.RandomState(23455)
     word2id, char2id=load_word2id_char2id(mark)
@@ -268,7 +268,7 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nker
                 sequences=[ent_char_ids_M,ent_lens_M,rel_word_ids_M,rel_word_lens_M,
                    men_char_ids_M, q_word_ids_M, men_lens_M, q_word_lens_M])
     
-    simi_list+=0.8*ent_scores
+    simi_list+=0.2*ent_scores
     
     posi_simi=simi_list[0]
     nega_simies=simi_list[1:]
@@ -326,7 +326,7 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nker
         if len(simi_list_i)==1 or simi_list_i[0]>=max(simi_list_i[1:]):
             succ+=1
         if i%1000==0:
-            print 'testing', i, '...acc:', (succ*1.0/(i+1))*(19835*1.0/21687)
+            print 'testing', i, '...acc:', (succ*1.0/(i+1))*(19168*1.0/21687)
     succ=succ*100.0/21687
     #now, check MAP and MRR
     print 'accu:', succ

@@ -125,7 +125,7 @@ def str2ngrams_list(strr, n):
     else:
         return [''.join(char_list[i:(i+n)]) for i in range(len(char_list)-n+1)]
 def    load_id2names_id2des():
-    readfile=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB2M-id2Name_20tokensDes.txt', 'r', 'utf-8')
+    readfile=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB5M-id2Name_20tokensDes.txt', 'r', 'utf-8')
     id2names={}
     id2des={}
     count=0
@@ -965,8 +965,8 @@ def FB2M_id2str_id2des():
     print  'FB5M_id2str_id2des, finished'
 
 def tokenize_id2NameDes():
-    readfile=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB2M-id2NameDes.txt', 'r', 'utf-8')
-    writefile=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB2M-id2Name_20tokensDes.txt', 'w', 'utf-8')    
+    readfile=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB5M-id2NameDes.txt', 'r', 'utf-8')
+    writefile=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB5M-id2Name_20tokensDes.txt', 'w', 'utf-8')    
     empty_line=0
     line_co=0
     for line in readfile:
@@ -1058,7 +1058,7 @@ def filter_test_valid_by_unentitylinked():
         print 'remove raw test_valid failed over'    
 
 def load_id2tuples():
-    read5M=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB2M-ungrouped.txt', 'r', 'utf-8')
+    read5M=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB5M-ungrouped.txt', 'r', 'utf-8')
     id2tuples={}
     count=0
     for line in read5M:
@@ -1095,14 +1095,14 @@ def EntityLinkingResult_into_TrainModelInput_TestValid():
 #     print 'id2tuples.get:', id2tuples.get('m.0c1rnhp')
 #     exit(0)
  
-    test_valid=['annotated_fb_data_test.entitylinking.top20_succSet.fromMo.txt', 'annotated_fb_data_valid.entitylinking.top20_succSet.txt']
-    raw_test_valid=['annotated_fb_data_test_succSet.fromMo.txt', 'annotated_fb_data_valid_succSet.txt']   
+    test_valid=['annotated_fb_data_test.entitylinking.top20_succSet.fromMo_FB5M.txt', 'annotated_fb_data_valid.entitylinking.top20_succSet.txt']
+    raw_test_valid=['annotated_fb_data_test_succSet.fromMo_FB5M.txt', 'annotated_fb_data_valid_succSet.txt']   
     for i in range(1):
         nega_size=0
         readfile=codecs.open(path+test_valid[i], 'r', 'utf-8')
         ground_tuple_list=load_groundtruth_tuple(path+raw_test_valid[i])
         if i==0:
-            writefile=codecs.open(path+'annotated_fb_data_test.entitylinking.top20_succSet_asInput.fromMo.txt', 'w', 'utf-8')  
+            writefile=codecs.open(path+'annotated_fb_data_test.entitylinking.top20_succSet_asInput.fromMo_FB5M.txt', 'w', 'utf-8')  
         else:
             writefile=codecs.open(path+'annotated_fb_data_valid.entitylinking.top20_succSet_asInput.txt', 'w', 'utf-8')
         count=0
@@ -1178,11 +1178,15 @@ def EntityLinkingResult_into_TrainModelInput_TestValid():
             shuffle(index_list)
 #             print 'index_list:', index_list
             indices=[0]+index_list
-            writefile.write(str(neg_size_line)+'\t')
-            writefile.write('\t'.join([tuple_write[ind] for ind in indices])+'\t')
-            writefile.write('\t'.join([name_write[ind] for ind in indices])+'\t')
-            writefile.write('\t'.join([des_write[ind] for ind in indices])+'\t')
-            writefile.write('\t'.join([men_Q_write[ind] for ind in indices])+'\n')
+            if neg_size_line>0:
+                writefile.write(str(neg_size_line)+'\t')
+                if len(tuple_write)!= len(indices):
+                    print 'tuple_write:', len(tuple_write), tuple_write, neg_size_line
+                    exit(0)
+                writefile.write('\t'.join([tuple_write[ind] for ind in indices])+'\t')
+                writefile.write('\t'.join([name_write[ind] for ind in indices])+'\t')
+                writefile.write('\t'.join([des_write[ind] for ind in indices])+'\t')
+                writefile.write('\t'.join([men_Q_write[ind] for ind in indices])+'\n')
             count+=1
         readfile.close()
         writefile.close()
@@ -1386,7 +1390,7 @@ def mention_detection_given_questionAndEntity(a, b):
             
 def MoTestData_to_EntityLinking_top20_format():
     path='/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/'
-    read_Mo=codecs.open(path+'test.fuzzy_p2_linker.simple_linker.original.union.reranked.2', 'r', 'utf-8')           
+    read_Mo=codecs.open(path+'test.fb5m.fuzzy_p2_linker.simple_linker.original.union', 'r', 'utf-8')           
     files=['annotated_fb_data_test.questions_stanfordTokenized.txt']#, 'annotated_fb_data_valid.questions_stanfordTokenized.txt', 'annotated_fb_data_train.questions_stanfordTokenized.txt']   
     q_files=['annotated_fb_data_test.txt']#, 'annotated_fb_data_valid.txt', 'annotated_fb_data_train.txt']
 #     q_files=['annotated_fb_data_train_35000toEnd.txt']
@@ -1407,19 +1411,20 @@ def MoTestData_to_EntityLinking_top20_format():
     read_raw_testfile.close()
     print 'raw test file loaded over'
     
-    writefile=codecs.open(path+'annotated_fb_data_test.entitylinking.top'+str(20)+'_succSet.fromMo.txt', 'w', 'utf-8')
-    write_sub_testfile=codecs.open(path+'annotated_fb_data_test_succSet.fromMo.txt', 'w', 'utf-8')
+    writefile=codecs.open(path+'annotated_fb_data_test.entitylinking.top'+str(20)+'_succSet.fromMo_FB5M.txt', 'w', 'utf-8')
+    write_sub_testfile=codecs.open(path+'annotated_fb_data_test_succSet.fromMo_FB5M.txt', 'w', 'utf-8')
     line_co=0
     fail_co=0
     for line in read_Mo:
         parts=line.strip().split('\t')
         ground_truth=parts[0].strip()
-        ground_truth='m.'+ground_truth[last_slash_pos(ground_truth)+1:]
+#         ground_truth='m.'+ground_truth[last_slash_pos(ground_truth)+1:]
 #         print ground_truth
         top20_map={}
         for one in parts[1:21]:
             ele_pair=one.split()
-            entity='m.'+ele_pair[0][last_slash_pos(ele_pair[0])+1:]
+#             entity='m.'+ele_pair[0][last_slash_pos(ele_pair[0])+1:]
+            entity=ele_pair[0].strip()
             top20_map[entity]=ele_pair[1]
             
         ground_score=top20_map.get(ground_truth)
