@@ -371,7 +371,7 @@ def load_test_or_valid(testfile, char2id, word2id, max_char_len, max_des_len, ma
             r_word_lens+=[left, len_temp, right]
             r_word_ids+=[0]*left
             for r_word in r_words:
-                word_id=word2id.get(r_word,len(word2id))
+                word_id=word2id.get(r_word)
                 if word_id is None:
                     word_id=len(word2id)+1 # start from 1
                     word2id[r_word]=word_id
@@ -395,7 +395,7 @@ def load_test_or_valid(testfile, char2id, word2id, max_char_len, max_des_len, ma
             char_lens+=[left, len_temp, right]
             char_ids+=[0]*left
             for h_char in h:
-                char_id=char2id.get(h_char,len(char2id))
+                char_id=char2id.get(h_char)
                 if char_id is None:
                     char_id=len(char2id)+1  #start from 1
                     char2id[h_char]=char_id
@@ -415,7 +415,7 @@ def load_test_or_valid(testfile, char2id, word2id, max_char_len, max_des_len, ma
             des_word_lens+=[left, len_temp, right]
             des_ids+=[0]*left
             for des_word in truncate_des:
-                id=word2id.get(des_word,len(word2id))
+                id=word2id.get(des_word)
                 if id is None:
                     id=len(word2id)+1
                     word2id[des_word]=id
@@ -440,7 +440,7 @@ def load_test_or_valid(testfile, char2id, word2id, max_char_len, max_des_len, ma
             m_char_len+=[left, len_temp, right]
             m_char_ids+=[0]*left
             for m_char in m:
-                char_id=char2id.get(m_char,len(char2id))
+                char_id=char2id.get(m_char)
                 if char_id is None:
                     char_id=len(char2id)+1
                     char2id[m_char]=char_id
@@ -455,7 +455,7 @@ def load_test_or_valid(testfile, char2id, word2id, max_char_len, max_des_len, ma
             Q_word_len+=[left, len_temp, right]
             Q_word_ids+=[0]*left
             for Q_word in Q_words:
-                word_id=word2id.get(Q_word,len(word2id))
+                word_id=word2id.get(Q_word)
                 if word_id is None:
                     word_id=len(word2id)+1
                     word2id[Q_word]=word_id
@@ -646,26 +646,26 @@ def load_train(trainfile, testfile, max_char_len, max_des_len, max_relation_len,
     print 'word vocab written over'
 
 
-    readFile=codecs.open('/mounts/data/proj/wenpeng/Dataset/glove.6B.50d.txt', 'r', 'utf-8')
-    dim=50
-#     line_control=1000
-#     line_start=0
-    glove={}
-    for line in readFile:
-        tokens=line.strip().split()
-        if len(tokens)<dim+1:
-            continue
-        else:
-            glove[tokens[0]]=map(float, tokens[1:])
-    readFile.close()
-    print 'glove loaded over...'  
-    write_word_emb=codecs.open(path+'word_emb'+mark+'.txt', 'w', 'utf-8')
-    random_emb=list(numpy.random.uniform(-0.01,0.01,dim))     
-    for word, id in word2id.iteritems():
-        emb=glove.get(word, random_emb)
-        write_word_emb.write(str(id)+'\t'+' '.join(map(str, emb))+'\n')
-    write_word_emb.close()
-    print 'initialized word embs written over'
+#     readFile=codecs.open('/mounts/data/proj/wenpeng/Dataset/glove.6B.50d.txt', 'r', 'utf-8')
+#     dim=50
+# #     line_control=1000
+# #     line_start=0
+#     glove={}
+#     for line in readFile:
+#         tokens=line.strip().split()
+#         if len(tokens)<dim+1:
+#             continue
+#         else:
+#             glove[tokens[0]]=map(float, tokens[1:])
+#     readFile.close()
+#     print 'glove loaded over...'  
+#     write_word_emb=codecs.open(path+'word_emb'+mark+'.txt', 'w', 'utf-8')
+#     random_emb=list(numpy.random.uniform(-0.01,0.01,dim))     
+#     for word, id in word2id.iteritems():
+#         emb=glove.get(word, random_emb)
+#         write_word_emb.write(str(id)+'\t'+' '.join(map(str, emb))+'\n')
+#     write_word_emb.close()
+#     print 'initialized word embs written over'
     return result, result_test, length_per_example_test, len(word2id), len(char2id)   
     
 def load_word2id_char2id(mark):

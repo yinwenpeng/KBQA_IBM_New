@@ -125,7 +125,7 @@ def str2ngrams_list(strr, n):
     else:
         return [''.join(char_list[i:(i+n)]) for i in range(len(char_list)-n+1)]
 def    load_id2names_id2des():
-    readfile=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB5M-id2Name_20tokensDes.txt', 'r', 'utf-8')
+    readfile=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB2M-id2Name_20tokensDes.txt', 'r', 'utf-8')
     id2names={}
     id2des={}
     count=0
@@ -1058,7 +1058,7 @@ def filter_test_valid_by_unentitylinked():
         print 'remove raw test_valid failed over'    
 
 def load_id2tuples():
-    read5M=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB5M-ungrouped.txt', 'r', 'utf-8')
+    read5M=codecs.open('/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/freebase-subsets/freebase-FB2M-ungrouped.txt', 'r', 'utf-8')
     id2tuples={}
     count=0
     for line in read5M:
@@ -1198,22 +1198,22 @@ def EntityLinkingResult_into_TrainModelInput_Train():
     id2name, id2des=load_id2names_id2des()
     id2tuples=load_id2tuples()
     max_triples=100
-    train='annotated_fb_data_train.entitylinking.top20.txt'
-    raw_train='annotated_fb_data_train.txt'  
+    train='annotated_fb_data_train.entitylinking.top20_succSet.fromMo_FB2M.txt'
+    raw_train='annotated_fb_data_train_succSet.fromMo_FB2M.txt'  
 
     readfile=codecs.open(path+train, 'r', 'utf-8')
     ground_tuple_list=load_groundtruth_tuple(path+raw_train)
-    ground_tuple_list.pop(31858)
-    writefile=codecs.open(path+'annotated_fb_data_train.entitylinking.top20_succSet_asInput.txt', 'w', 'utf-8')  
+#     ground_tuple_list.pop(31858)
+    writefile=codecs.open(path+'annotated_fb_data_train.entitylinking.top20_succSet_asInput.fromMo_FB2M.txt', 'w', 'utf-8')  
 
     count=0
     for line in readfile:
         neg_size_line=0
-        parts=line.strip().split()
+        parts=line.strip().split('\t')
 #             print 'len(parts):', len(parts)
         entity_parts=parts[:20]
-        question=parts[20:]
-        if parts[20].find('==')>=0:
+        question=parts[-1].split()
+        if question[0].find('==')>=0:
             print 'format error'
             exit(0)
         ground_tuple=ground_tuple_list[count]
@@ -1229,9 +1229,9 @@ def EntityLinkingResult_into_TrainModelInput_Train():
             mid=tokens[0]
 #                 print 'mid:', mid
             s1=tokens[1]
-            s2=tokens[2]
-            s3=tokens[3]
-            s4=tokens[4]
+#             s2=tokens[2]
+#             s3=tokens[3]
+#             s4=tokens[4]
             mid_related_tuples=id2tuples.get(mid)
 #                 print mid, mid_related_tuples, len(mid_related_tuples)
             if mid_related_tuples is None:
@@ -1242,8 +1242,11 @@ def EntityLinkingResult_into_TrainModelInput_Train():
                 continue
             mid_name=mid_name_str.split()
             mid_des=id2des.get(mid)
+#             if mid_des is None:
+#                 continue
             if p==0:
-                tuple_write.append('=='.join(ground_tuple)+'=='+'=='.join([s1,s2,s3,s4]))
+#                 tuple_write.append('=='.join(ground_tuple)+'=='+'=='.join([s1,s2,s3,s4]))
+                tuple_write.append('=='.join(ground_tuple)+'=='+'=='.join([s1]))
                 name_write.append(mid_name_str)
                 des_write.append(mid_des)
                 men_Q_write.append('=='.join(list(mention_detection_given_questionAndEntity(question, mid_name))))
@@ -1251,7 +1254,8 @@ def EntityLinkingResult_into_TrainModelInput_Train():
                     mid_related_tuples.remove(ground_tuple)
             
             for related_tup in mid_related_tuples:
-                tuple_write.append('=='.join(related_tup)+'=='+'=='.join([s1,s2,s3,s4]))
+#                 tuple_write.append('=='.join(related_tup)+'=='+'=='.join([s1,s2,s3,s4]))
+                tuple_write.append('=='.join(related_tup)+'=='+'=='.join([s1]))
                 name_write.append(mid_name_str)
                 des_write.append(mid_des)
                 men_Q_write.append('=='.join(list(mention_detection_given_questionAndEntity(question, mid_name))))
@@ -1279,14 +1283,15 @@ def EntityLinkingResult_into_TrainModelInput_Train():
         shuffle(index_list)
 #             print 'index_list:', index_list
         indices=[0]+index_list
-        if len(indices)!=max_triples:
-            print 'len(indices)!=max_triples'
-            exit(0)
-        writefile.write(str(max_triples)+'\t')
-        writefile.write('\t'.join([tuple_write[ind] for ind in indices])+'\t')
-        writefile.write('\t'.join([name_write[ind] for ind in indices])+'\t')
-        writefile.write('\t'.join([des_write[ind] for ind in indices])+'\t')
-        writefile.write('\t'.join([men_Q_write[ind] for ind in indices])+'\n')
+        if len(indices)>1:
+            if len(indices)!=max_triples:
+                print 'len(indices)!=max_triples:', len(indices)
+                exit(0)
+            writefile.write(str(max_triples)+'\t')
+            writefile.write('\t'.join([tuple_write[ind] for ind in indices])+'\t')
+            writefile.write('\t'.join([name_write[ind] for ind in indices])+'\t')
+            writefile.write('\t'.join([des_write[ind] for ind in indices])+'\t')
+            writefile.write('\t'.join([men_Q_write[ind] for ind in indices])+'\n')
         count+=1
     readfile.close()
     writefile.close()
@@ -1390,9 +1395,9 @@ def mention_detection_given_questionAndEntity(a, b):
             
 def MoTestData_to_EntityLinking_top20_format():
     path='/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/'
-    read_Mo=codecs.open(path+'test.fb5m.fuzzy_p2_linker.simple_linker.original.union', 'r', 'utf-8')           
-    files=['annotated_fb_data_test.questions_stanfordTokenized.txt']#, 'annotated_fb_data_valid.questions_stanfordTokenized.txt', 'annotated_fb_data_train.questions_stanfordTokenized.txt']   
-    q_files=['annotated_fb_data_test.txt']#, 'annotated_fb_data_valid.txt', 'annotated_fb_data_train.txt']
+    read_Mo=codecs.open(path+'train.fuzzy_p2_linker.simple_linker.original.union', 'r', 'utf-8')           
+    files=['annotated_fb_data_train.questions_stanfordTokenized.txt']#, 'annotated_fb_data_valid.questions_stanfordTokenized.txt', 'annotated_fb_data_train.questions_stanfordTokenized.txt']   
+    q_files=['annotated_fb_data_train.txt']#, 'annotated_fb_data_valid.txt', 'annotated_fb_data_train.txt']
 #     q_files=['annotated_fb_data_train_35000toEnd.txt']
     
 
@@ -1409,9 +1414,9 @@ def MoTestData_to_EntityLinking_top20_format():
     for line in read_raw_testfile:
         raw_test_list.append(line.strip())
     read_raw_testfile.close()
-    print 'raw test file loaded over'
+    print 'raw train file loaded over'
     
-    writefile=codecs.open(path+'annotated_fb_data_test.entitylinking.top'+str(20)+'_succSet.fromMo_FB5M.txt', 'w', 'utf-8')
+    writefile=codecs.open(path+'annotated_fb_data_train.entitylinking.top'+str(20)+'_succSet.fromMo_FB2M.txt', 'w', 'utf-8')
     write_sub_testfile=codecs.open(path+'annotated_fb_data_test_succSet.fromMo_FB5M.txt', 'w', 'utf-8')
     line_co=0
     fail_co=0
@@ -1445,7 +1450,81 @@ def MoTestData_to_EntityLinking_top20_format():
     write_sub_testfile.close()
     print 'create over, top20 coverage is:', 1.0-fail_co*1.0/line_co
             
-            
+def MoTrainData_to_EntityLinking_top20_format():
+    
+    no_control=20
+    path='/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/'
+    read_Mo=codecs.open(path+'train.fuzzy_p2_linker.simple_linker.original.union', 'r', 'utf-8')           
+    files=['annotated_fb_data_train.questions_stanfordTokenized.txt']#, 'annotated_fb_data_valid.questions_stanfordTokenized.txt', 'annotated_fb_data_train.questions_stanfordTokenized.txt']   
+    q_files=['annotated_fb_data_train.txt']#, 'annotated_fb_data_valid.txt', 'annotated_fb_data_train.txt']
+#     q_files=['annotated_fb_data_train_35000toEnd.txt']
+    
+
+    readfile=codecs.open(path+files[0], 'r', 'utf-8')
+    question_list=[]
+    for line in readfile:
+        question=line.strip().lower()
+        question_list.append(question)
+    readfile.close()
+    print 'question loaded over'
+    
+    read_raw_testfile=codecs.open(path+q_files[0], 'r', 'utf-8')
+    raw_test_list=[]
+    for line in read_raw_testfile:
+        raw_test_list.append(line.strip())
+    read_raw_testfile.close()
+    print 'raw train file loaded over'
+    
+    writefile=codecs.open(path+'annotated_fb_data_train.entitylinking.top'+str(20)+'_succSet.fromMo_FB2M.txt', 'w', 'utf-8')
+    write_sub_testfile=codecs.open(path+'annotated_fb_data_train_succSet.fromMo_FB2M.txt', 'w', 'utf-8')
+    line_co=0
+    fail_co=0
+    for line in read_Mo:
+#         if line_co==34:
+#             print line
+#             exit(0)
+        parts=line.strip().split('\t')
+        ground_truth=parts[0].strip()
+#         ground_truth='m.'+ground_truth[last_slash_pos(ground_truth)+1:]
+#         print ground_truth
+        entity_id_list=[]
+        entity_score_list=[]
+        id2score={}
+        for one in parts[1:]:
+            ele_pair=one.split()
+            idd=ele_pair[0].strip()
+            score=ele_pair[1].strip()
+#             entity='m.'+ele_pair[0][last_slash_pos(ele_pair[0])+1:]
+            entity_id_list.append(idd)
+            entity_score_list.append(score)
+            id2score[idd]=score
+        
+        ground_score=id2score.get(ground_truth)
+        if ground_score is  None:
+            ground_score=str(float(entity_score_list[-1])-0.001)
+            fail_co+=1
+        
+        if len(entity_id_list)!=1:
+            remain_list=[]
+            size=0
+            while size<no_control-1:
+                for i in range(len(entity_id_list)):
+                    if  entity_id_list[i]!= ground_truth:
+                        remain_list.append(entity_id_list[i]+'=='+entity_score_list[i])
+                        size+=1
+    
+    
+    
+            writefile.write(ground_truth+'=='+ground_score+'\t'+'\t'.join(remain_list[:no_control-1]).strip()+'\t'+question_list[line_co].strip()+'\n')
+            write_sub_testfile.write(raw_test_list[line_co]+'\n')
+
+        line_co+=1
+#         if line_co%100==0:
+#         print line_co
+    read_Mo.close()
+    writefile.close()
+#     write_sub_testfile.close()
+    print 'create over, top20 coverage is:', 1.0-fail_co*1.0/line_co            
 
                 
    
@@ -1472,11 +1551,12 @@ if __name__ == '__main__':
 #     FB2M_SimpleQA_EntityLinking()
 #     Remove_EntityLinkingFailed_TestValid()
 #     filter_test_valid_by_unentitylinked()
-    EntityLinkingResult_into_TrainModelInput_TestValid()
-#     EntityLinkingResult_into_TrainModelInput_Train()
+#     EntityLinkingResult_into_TrainModelInput_TestValid()
+    EntityLinkingResult_into_TrainModelInput_Train()
 # 
 #     truncate_train_35000toEnd()
 #     MoTestData_to_EntityLinking_top20_format()
+#     MoTrainData_to_EntityLinking_top20_format()
 
 
 

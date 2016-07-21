@@ -57,15 +57,15 @@ Doesnt work:
 '''
 
 def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nkerns=100, batch_size=1, window_width=[3, 3],
-                    emb_size=500, char_emb_size=100, hidden_size=200,
+                    emb_size=500, char_emb_size=100,
                     margin=0.5, L2_weight=0.0003, Div_reg=0.03, update_freq=1, norm_threshold=5.0, max_truncate=40, 
                     max_char_len=40, max_des_len=20, max_relation_len=5, max_Q_len=30, train_neg_size=21, 
-                    neg_all=100, train_size=75893, test_size=17386, mark='_BiasedMaxPool_lr0.1_word500_char100_noDes_ent2.6_entScoreLater'):  #train_size=75893, test_size=17386
+                    neg_all=100, train_size=73444, test_size=19835, mark='_MoData_W500_C100'):  #train_size=75893, test_size=17386
 #     maxSentLength=max_truncate+2*(window_width-1)
     model_options = locals().copy()
     print "model options", model_options
-    rootPath='/home/wyin/Datasets/SimpleQuestions_v2/'
-    triple_files=['annotated_fb_data_train.entitylinking.top20_succSet_asInput.txt', 'annotated_fb_data_test.entitylinking.top20_succSet_asInput.txt']
+    rootPath='/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/'
+    triple_files=['annotated_fb_data_train.entitylinking.top20_succSet_asInput.fromMo_FB2M.txt', 'annotated_fb_data_test.entitylinking.top20_succSet_asInput.fromMo.txt']
 
     rng = numpy.random.RandomState(23455)
     datasets, datasets_test, length_per_example_test, vocab_size, char_size=load_train(triple_files[0], triple_files[1], max_char_len, max_des_len, max_relation_len, max_Q_len, train_size, test_size, mark)#max_char_len, max_des_len, max_relation_len, max_Q_len
@@ -451,7 +451,8 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nker
             #if iter ==1:
             #    exit(0)
 #             
-            if iter > 139999 and iter % 10000 == 0:
+#             if iter > 139999 and iter % 10000 == 0:
+#             if iter % 10000 == 0:
             #if True:     
                 test_loss=[]
                 succ=0
@@ -477,12 +478,13 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nker
                     loss_simi_i,simi_list_i=test_model(test_ent_char_ids_M, test_ent_lens_M, test_men_char_ids_M, test_men_lens_M, test_rel_word_ids_M, test_rel_word_lens_M, test_q_word_ids_M, test_q_word_lens_M)#, test_ent_scores)
 #                     print 'simi_list_i:', simi_list_i[:10]
                     test_loss.append(loss_simi_i)
-                    simi_list_i=[simi_list_i[ele]+2.6*test_ent_scores[ele]   for ele in range(len(simi_list_i))]
-                    if simi_list_i[0]>=max(simi_list_i[1:]):
+                    simi_list_i=[simi_list_i[ele]+0.8*test_ent_scores[ele]   for ele in range(len(simi_list_i))]
+                    
+                    if len(simi_list_i)==1 or simi_list_i[0]>=max(simi_list_i[1:]):
                         succ+=1
                     #if i%1000==0:
                     #print 'testing', i, '...acc:', (succ*1.0/(i+1))*(17386*1.0/21687)
-                succ=(succ*1.0/test_size)*(17386*1.0/21687)
+                succ=(succ*1.0/test_size)*(19835*1.0/21687)
                 #exit(0)
                 #now, check MAP and MRR
                 print(('\t\t\t\t\t\tepoch %i, minibatch %i/%i, test accu of best '

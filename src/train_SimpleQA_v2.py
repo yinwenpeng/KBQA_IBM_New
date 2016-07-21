@@ -60,12 +60,12 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nker
                     emb_size=500, char_emb_size=100, hidden_size=200,
                     margin=0.5, L2_weight=0.0003, Div_reg=0.03, update_freq=1, norm_threshold=5.0, max_truncate=40, 
                     max_char_len=40, max_des_len=20, max_relation_len=5, max_Q_len=30, train_neg_size=21, 
-                    neg_all=100, train_size=75893, test_size=17386, mark='_BiasedMaxPool_lr0.1_word500_char100_newHyper'):  #train_size=75893, test_size=17386
+                    neg_all=100, train_size=73444, test_size=19835, mark='_firstMo'):  #train_size=75893, test_size=17386
 #     maxSentLength=max_truncate+2*(window_width-1)
     model_options = locals().copy()
     print "model options", model_options
     rootPath='/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/'
-    triple_files=['annotated_fb_data_train.entitylinking.top20_succSet_asInput.txt', 'annotated_fb_data_test.entitylinking.top20_succSet_asInput.txt']
+    triple_files=['annotated_fb_data_train.entitylinking.top20_succSet_asInput.fromMo_FB2M.txt', 'annotated_fb_data_test.entitylinking.top20_succSet_asInput.fromMo.txt']
 
     rng = numpy.random.RandomState(23455)
     datasets, datasets_test, length_per_example_test, vocab_size, char_size=load_train(triple_files[0], triple_files[1], max_char_len, max_des_len, max_relation_len, max_Q_len, train_size, test_size, mark)#max_char_len, max_des_len, max_relation_len, max_Q_len
@@ -318,7 +318,7 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nker
                    desH_word_lens_M,
                    men_char_ids_M, q_word_ids_M, men_lens_M, q_word_lens_M])#,ent_scores])
     
-    simi_list+=2.0*ent_scores
+    simi_list+=0.8*ent_scores
     
     posi_simi=simi_list[0]
     nega_simies=simi_list[1:]

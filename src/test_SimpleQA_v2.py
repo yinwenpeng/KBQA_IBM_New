@@ -60,12 +60,12 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nker
                     emb_size=500, char_emb_size=100, hidden_size=200,
                     margin=0.5, L2_weight=0.0003, update_freq=1, norm_threshold=5.0, max_truncate=40, 
                     max_char_len=40, max_des_len=20, max_relation_len=5, max_Q_len=30, train_neg_size=6, 
-                    neg_all=100, train_size=75893, test_size=17386, mark='_BiasedMaxPool_lr0.1_word500_char100_newHyper'):  #train_size=75909, test_size=17386
+                    neg_all=100, train_size=75893, test_size=19835, mark='_BiasedMaxPool_lr0.1_word500_char10067.71'):  #train_size=75909, test_size=17386
 #     maxSentLength=max_truncate+2*(window_width-1)
     model_options = locals().copy()
     print "model options", model_options
-    rootPath='/home/wyin/Datasets/SimpleQuestions_v2/'
-    triple_files=['annotated_fb_data_train.entitylinking.top20_succSet_asInput.txt', 'annotated_fb_data_test.entitylinking.top20_succSet_asInput.txt']
+    rootPath='/mounts/data/proj/wenpeng/Dataset/freebase/SimpleQuestions_v2/'
+    triple_files=['annotated_fb_data_train.entitylinking.top20_succSet_asInput.txt', 'annotated_fb_data_test.entitylinking.top20_succSet_asInput.fromMo.txt']
 
     rng = numpy.random.RandomState(23455)
     word2id, char2id=load_word2id_char2id(mark)
@@ -325,16 +325,16 @@ def evaluate_lenet5(learning_rate=0.1, n_epochs=2000, word_nkerns=500, char_nker
                                            test_desH_word_ids_M, test_desH_word_lens_M, test_q_word_ids_M, test_q_word_lens_M, test_ent_scores)
     #                     print 'simi_list_i:', simi_list_i[:10]
         test_loss.append(loss_simi_i)
-        if simi_list_i[0]>=max(simi_list_i[1:]):
+        if len(simi_list_i)==1 or simi_list_i[0]>=max(simi_list_i[1:]):
             succ+=1
         if i%1000==0:
-            print 'testing', i, '...acc:', (succ*1.0/(i+1))*(17386*1.0/21687)
+            print 'testing', i, '...acc:', (succ*1.0/(i+1))*(19835*1.0/21687)
     succ=succ*100.0/21687
     #now, check MAP and MRR
     print 'accu:', succ
     
 
-    store_model_to_file(rootPath, params, succ, mark)
+#     store_model_to_file(rootPath, params, succ, mark)
 
     print 'Epoch ', epoch, 'uses ', (time.clock()-mid_time)/60.0, 'min'
 
